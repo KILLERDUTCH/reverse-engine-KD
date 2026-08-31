@@ -3,12 +3,11 @@
 <p align="center">
   <img src="https://img.shields.io/badge/version-1.0.0-brightgreen" alt="v1">
   <img src="https://img.shields.io/badge/made%20with-%E2%9D%A4%EF%B8%8F-red" alt="love">
-  <img src="https://img.shields.io/badge/style-π√}\[]°•§£¢-blueviolet" alt="style">
 </p>
 
 ---
 
-## 🔥 چیه این؟
+## معرفی
 
 **KREV** یه ابزار مهندسی معکوسه که با **هوش مصنوعی** فایل‌های باینری رو تحلیل می‌کنه.  
 فقط کافیه فایل رو بندازی تو مرورگر، خودش هگز دامپ رو نشون میده و با AI تحلیلش می‌کنه.
