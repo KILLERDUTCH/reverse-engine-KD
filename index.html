@@ -1,0 +1,229 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>KREV - مهندسی معکوس Killerdutch</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: #0a0a0a;
+            color: #00ff88;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+        }
+
+        .container {
+            max-width: 900px;
+            width: 100%;
+            padding: 20px;
+            background: #1a1a1a;
+            border-radius: 16px;
+            border: 1px solid #00ff88;
+            box-shadow: 0 0 30px rgba(0, 255, 136, 0.2);
+        }
+
+        h1 {
+            font-size: 3rem;
+            text-align: center;
+            color: #00ff88;
+            text-shadow: 0 0 20px #00ff88;
+        }
+
+        .subtitle {
+            text-align: center;
+            color: #aaa;
+            margin-bottom: 30px;
+        }
+
+        .upload-area {
+            border: 2px dashed #00ff88;
+            padding: 40px;
+            text-align: center;
+            border-radius: 12px;
+            cursor: pointer;
+            transition: 0.3s;
+        }
+
+        .upload-area:hover {
+            background: #00ff8811;
+        }
+
+        #fileInput {
+            display: none;
+        }
+
+        #output {
+            margin-top: 30px;
+            display: none;
+        }
+
+        pre {
+            background: #0a0a0a;
+            padding: 15px;
+            border-radius: 8px;
+            overflow-x: auto;
+            color: #00ff88;
+            border: 1px solid #00ff8844;
+            max-height: 300px;
+            overflow-y: auto;
+            font-size: 14px;
+        }
+
+        button {
+            background: #00ff88;
+            color: #0a0a0a;
+            border: none;
+            padding: 12px 30px;
+            border-radius: 8px;
+            font-size: 18px;
+            font-weight: bold;
+            cursor: pointer;
+            margin-top: 15px;
+            transition: 0.3s;
+        }
+
+        button:hover {
+            transform: scale(1.05);
+            box-shadow: 0 0 30px #00ff8866;
+        }
+
+        #aiResult {
+            display: none;
+            margin-top: 20px;
+        }
+
+        .footer {
+            margin-top: 40px;
+            text-align: center;
+            color: #666;
+        }
+
+        .footer a {
+            color: #00ff88;
+            text-decoration: none;
+        }
+
+        .footer a:hover {
+            text-decoration: underline;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🔧 KREV</h1>
+        <p class="subtitle">ابزار مهندسی معکوس <strong>Killerdutch</strong></p>
+
+        <div class="upload-area" id="uploadArea">
+            <p>📁 فایل باینری رو بکش اینجا یا کلیک کن</p>
+            <input type="file" id="fileInput" accept="*/*">
+        </div>
+
+        <div id="output">
+            <h2>📋 کد اسمبلی</h2>
+            <pre id="asmOutput"></pre>
+            
+            <button id="analyzeBtn">🧠 تحلیل با هوش مصنوعی</button>
+            <div id="aiResult">
+                <h2>📊 نتیجه تحلیل</h2>
+                <pre id="aiOutput"></pre>
+            </div>
+        </div>
+
+        <div class="footer">
+            توسعه‌دهنده: <a href="https://github.com/KILLERDUTCH" target="_blank">Killerdutch</a>
+        </div>
+    </div>
+
+    <script>
+        const uploadArea = document.getElementById('uploadArea');
+        const fileInput = document.getElementById('fileInput');
+        const outputDiv = document.getElementById('output');
+        const asmOutput = document.getElementById('asmOutput');
+        const analyzeBtn = document.getElementById('analyzeBtn');
+        const aiResult = document.getElementById('aiResult');
+        const aiOutput = document.getElementById('aiOutput');
+
+        let currentFile = null;
+        let asmCode = '';
+
+        uploadArea.addEventListener('click', () => fileInput.click());
+        uploadArea.addEventListener('dragover', (e) => {
+            e.preventDefault();
+            uploadArea.style.borderColor = '#00ff88';
+        });
+        uploadArea.addEventListener('dragleave', () => {
+            uploadArea.style.borderColor = '#00ff88';
+        });
+        uploadArea.addEventListener('drop', (e) => {
+            e.preventDefault();
+            if (e.dataTransfer.files.length) {
+                handleFile(e.dataTransfer.files[0]);
+            }
+        });
+
+        fileInput.addEventListener('change', (e) => {
+            if (e.target.files.length) {
+                handleFile(e.target.files[0]);
+            }
+        });
+
+        async function handleFile(file) {
+            currentFile = file;
+            const formData = new FormData();
+            formData.append('file', file);
+
+            asmOutput.textContent = '🔄 در حال دی‌کامپایل...';
+            outputDiv.style.display = 'block';
+            aiResult.style.display = 'none';
+
+            try {
+                const response = await fetch('http://localhost:3000/upload', {
+                    method: 'POST',
+                    body: formData
+                });
+                const data = await response.json();
+                if (data.error) {
+                    asmOutput.textContent = data.error;
+                } else {
+                    asmCode = data.asm;
+                    asmOutput.textContent = asmCode || 'کدی یافت نشد';
+                }
+            } catch {
+                asmOutput.textContent = '❌ خطا در ارتباط با سرور. سرور رو روشن کن!';
+            }
+        }
+
+        analyzeBtn.addEventListener('click', async () => {
+            if (!asmCode) {
+                aiOutput.textContent = '⚠️ اول یه فایل آپلود کن!';
+                aiResult.style.display = 'block';
+                return;
+            }
+
+            aiResult.style.display = 'block';
+            aiOutput.textContent = '🧠 در حال تحلیل...';
+
+            try {
+                const response = await fetch('http://localhost:3000/analyze', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ code: asmCode })
+                });
+                const data = await response.json();
+                aiOutput.textContent = data.result || data.error || 'خطای ناشناخته';
+            } catch {
+                aiOutput.textContent = '❌ خطا در ارتباط با سرور. سرور رو چک کن!';
+            }
+        });
+    </script>
+</body>
+</html>
