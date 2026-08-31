@@ -10,127 +10,137 @@
             padding: 0;
             box-sizing: border-box;
         }
-
         body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            font-family: 'Segoe UI', Tahoma, sans-serif;
             background: #0a0a0a;
             color: #00ff88;
             display: flex;
             justify-content: center;
             align-items: center;
             min-height: 100vh;
-        }
-
-        .container {
-            max-width: 900px;
-            width: 100%;
             padding: 20px;
+        }
+        .container {
+            max-width: 1000px;
+            width: 100%;
             background: #1a1a1a;
-            border-radius: 16px;
-            border: 1px solid #00ff88;
-            box-shadow: 0 0 30px rgba(0, 255, 136, 0.2);
+            border-radius: 20px;
+            padding: 30px;
+            border: 2px solid #00ff88;
+            box-shadow: 0 0 50px #00ff8833;
         }
-
         h1 {
-            font-size: 3rem;
+            font-size: 3.5rem;
             text-align: center;
-            color: #00ff88;
-            text-shadow: 0 0 20px #00ff88;
+            text-shadow: 0 0 30px #00ff88;
+            letter-spacing: 2px;
         }
-
-        .subtitle {
+        .sub {
             text-align: center;
             color: #aaa;
             margin-bottom: 30px;
+            font-size: 1.2rem;
         }
-
-        .upload-area {
-            border: 2px dashed #00ff88;
-            padding: 40px;
+        .sub strong {
+            color: #00ff88;
+        }
+        .upload {
+            border: 3px dashed #00ff88;
+            padding: 50px;
             text-align: center;
-            border-radius: 12px;
+            border-radius: 16px;
             cursor: pointer;
             transition: 0.3s;
+            font-size: 1.2rem;
         }
-
-        .upload-area:hover {
+        .upload:hover {
             background: #00ff8811;
+            border-color: #00ff88;
         }
-
         #fileInput {
             display: none;
         }
-
         #output {
-            margin-top: 30px;
             display: none;
+            margin-top: 30px;
         }
-
         pre {
             background: #0a0a0a;
             padding: 15px;
-            border-radius: 8px;
+            border-radius: 10px;
             overflow-x: auto;
-            color: #00ff88;
             border: 1px solid #00ff8844;
-            max-height: 300px;
+            max-height: 350px;
             overflow-y: auto;
-            font-size: 14px;
+            font-size: 13px;
+            white-space: pre-wrap;
+            word-break: break-all;
+            color: #00ff88;
         }
-
         button {
             background: #00ff88;
             color: #0a0a0a;
             border: none;
-            padding: 12px 30px;
-            border-radius: 8px;
-            font-size: 18px;
+            padding: 14px 40px;
+            border-radius: 10px;
+            font-size: 1.2rem;
             font-weight: bold;
             cursor: pointer;
-            margin-top: 15px;
+            margin: 20px 0 10px;
             transition: 0.3s;
+            width: 100%;
         }
-
         button:hover {
-            transform: scale(1.05);
-            box-shadow: 0 0 30px #00ff8866;
+            transform: scale(1.02);
+            box-shadow: 0 0 40px #00ff8866;
         }
-
         #aiResult {
             display: none;
             margin-top: 20px;
         }
-
         .footer {
             margin-top: 40px;
             text-align: center;
             color: #666;
+            border-top: 1px solid #00ff8822;
+            padding-top: 20px;
         }
-
         .footer a {
             color: #00ff88;
             text-decoration: none;
+            font-weight: bold;
         }
-
-        .footer a:hover {
-            text-decoration: underline;
+        .loader {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 3px solid #0a0a0a;
+            border-top: 3px solid #00ff88;
+            border-radius: 50%;
+            animation: spin 0.8s linear infinite;
+            margin-right: 10px;
+            vertical-align: middle;
+        }
+        @keyframes spin {
+            to {
+                transform: rotate(360deg);
+            }
         }
     </style>
 </head>
 <body>
     <div class="container">
         <h1>🔧 KREV</h1>
-        <p class="subtitle">ابزار مهندسی معکوس <strong>Killerdutch</strong></p>
+        <p class="sub">ابزار مهندسی معکوس <strong>Killerdutch</strong></p>
 
-        <div class="upload-area" id="uploadArea">
+        <div class="upload" id="uploadArea">
             <p>📁 فایل باینری رو بکش اینجا یا کلیک کن</p>
             <input type="file" id="fileInput" accept="*/*">
         </div>
 
         <div id="output">
-            <h2>📋 کد اسمبلی</h2>
-            <pre id="asmOutput"></pre>
-            
+            <h2>📋 هگز دامپ (نمونه)</h2>
+            <pre id="hexOutput"></pre>
             <button id="analyzeBtn">🧠 تحلیل با هوش مصنوعی</button>
             <div id="aiResult">
                 <h2>📊 نتیجه تحلیل</h2>
@@ -140,90 +150,135 @@
 
         <div class="footer">
             توسعه‌دهنده: <a href="https://github.com/KILLERDUTCH" target="_blank">Killerdutch</a>
+            &nbsp;|&nbsp; <span id="status">✅ آماده</span>
         </div>
     </div>
 
     <script>
-        const uploadArea = document.getElementById('uploadArea');
-        const fileInput = document.getElementById('fileInput');
-        const outputDiv = document.getElementById('output');
-        const asmOutput = document.getElementById('asmOutput');
-        const analyzeBtn = document.getElementById('analyzeBtn');
-        const aiResult = document.getElementById('aiResult');
-        const aiOutput = document.getElementById('aiOutput');
+        (function() {
+            const uploadArea = document.getElementById('uploadArea');
+            const fileInput = document.getElementById('fileInput');
+            const outputDiv = document.getElementById('output');
+            const hexOutput = document.getElementById('hexOutput');
+            const analyzeBtn = document.getElementById('analyzeBtn');
+            const aiResult = document.getElementById('aiResult');
+            const aiOutput = document.getElementById('aiOutput');
+            const status = document.getElementById('status');
 
-        let currentFile = null;
-        let asmCode = '';
+            let currentFile = null;
+            let hexDump = '';
+            let asmCode = '';
 
-        uploadArea.addEventListener('click', () => fileInput.click());
-        uploadArea.addEventListener('dragover', (e) => {
-            e.preventDefault();
-            uploadArea.style.borderColor = '#00ff88';
-        });
-        uploadArea.addEventListener('dragleave', () => {
-            uploadArea.style.borderColor = '#00ff88';
-        });
-        uploadArea.addEventListener('drop', (e) => {
-            e.preventDefault();
-            if (e.dataTransfer.files.length) {
-                handleFile(e.dataTransfer.files[0]);
-            }
-        });
-
-        fileInput.addEventListener('change', (e) => {
-            if (e.target.files.length) {
-                handleFile(e.target.files[0]);
-            }
-        });
-
-        async function handleFile(file) {
-            currentFile = file;
-            const formData = new FormData();
-            formData.append('file', file);
-
-            asmOutput.textContent = '🔄 در حال دی‌کامپایل...';
-            outputDiv.style.display = 'block';
-            aiResult.style.display = 'none';
-
-            try {
-                const response = await fetch('http://localhost:3000/upload', {
-                    method: 'POST',
-                    body: formData
-                });
-                const data = await response.json();
-                if (data.error) {
-                    asmOutput.textContent = data.error;
-                } else {
-                    asmCode = data.asm;
-                    asmOutput.textContent = asmCode || 'کدی یافت نشد';
+            // آپلود
+            uploadArea.addEventListener('click', () => fileInput.click());
+            uploadArea.addEventListener('dragover', (e) => {
+                e.preventDefault();
+                uploadArea.style.borderColor = '#00ff88';
+            });
+            uploadArea.addEventListener('dragleave', () => {
+                uploadArea.style.borderColor = '#00ff88';
+            });
+            uploadArea.addEventListener('drop', (e) => {
+                e.preventDefault();
+                if (e.dataTransfer.files.length) {
+                    handleFile(e.dataTransfer.files[0]);
                 }
-            } catch {
-                asmOutput.textContent = '❌ خطا در ارتباط با سرور. سرور رو روشن کن!';
-            }
-        }
+            });
+            fileInput.addEventListener('change', (e) => {
+                if (e.target.files.length) {
+                    handleFile(e.target.files[0]);
+                }
+            });
 
-        analyzeBtn.addEventListener('click', async () => {
-            if (!asmCode) {
-                aiOutput.textContent = '⚠️ اول یه فایل آپلود کن!';
+            // تابع تبدیل بایت به هگز
+            function toHex(bytes, limit = 1024) {
+                let result = '';
+                const len = Math.min(bytes.length, limit);
+                for (let i = 0; i < len; i++) {
+                    result += bytes[i].toString(16).padStart(2, '0') + ' ';
+                    if ((i + 1) % 16 === 0) result += '\n';
+                }
+                if (bytes.length > limit) result += '\n... (ادامه)';
+                return result;
+            }
+
+            // هندل فایل
+            function handleFile(file) {
+                currentFile = file;
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    const buffer = e.target.result;
+                    const bytes = new Uint8Array(buffer);
+                    hexDump = toHex(bytes);
+                    hexOutput.textContent = hexDump;
+                    outputDiv.style.display = 'block';
+                    aiResult.style.display = 'none';
+                    status.textContent = '✅ فایل آپلود شد';
+                    // ذخیره هگز به عنوان "کد اسمبلی" تقلبی برای AI
+                    asmCode = hexDump.slice(0, 2000);
+                };
+                reader.readAsArrayBuffer(file);
+            }
+
+            // تحلیل با هوش مصنوعی
+            analyzeBtn.addEventListener('click', async function() {
+                if (!asmCode) {
+                    aiOutput.textContent = '⚠️ اول یه فایل آپلود کن!';
+                    aiResult.style.display = 'block';
+                    return;
+                }
+
                 aiResult.style.display = 'block';
-                return;
-            }
+                aiOutput.textContent = '🧠 در حال تحلیل با هوش مصنوعی...';
+                status.textContent = '⏳ تحلیل...';
+                analyzeBtn.disabled = true;
 
-            aiResult.style.display = 'block';
-            aiOutput.textContent = '🧠 در حال تحلیل...';
+                // تلاش با Hugging Face API (رایگان)
+                try {
+                    const response = await fetch('https://api-inference.huggingface.co/models/mistralai/Mistral-7B-Instruct-v0.1', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            // اگه توکن داری بذار، ولی بدون توکن هم بعضی مدل‌ها کار میکنن
+                        },
+                        body: JSON.stringify({
+                            inputs: `کد هگزادسیمال زیر رو تحلیل کن و بگو چه کاری انجام میده و آیا خطرناکه:\n${asmCode.slice(0, 1500)}`,
+                            parameters: { max_new_tokens: 300 }
+                        })
+                    });
 
-            try {
-                const response = await fetch('http://localhost:3000/analyze', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ code: asmCode })
-                });
-                const data = await response.json();
-                aiOutput.textContent = data.result || data.error || 'خطای ناشناخته';
-            } catch {
-                aiOutput.textContent = '❌ خطا در ارتباط با سرور. سرور رو چک کن!';
-            }
-        });
+                    if (response.ok) {
+                        const data = await response.json();
+                        if (data && data[0] && data[0].generated_text) {
+                            aiOutput.textContent = data[0].generated_text;
+                            status.textContent = '✅ تحلیل با HF انجام شد';
+                            analyzeBtn.disabled = false;
+                            return;
+                        }
+                    }
+                } catch (e) {
+                    // اگه HF کار نکرد، از یه API دیگه یا شبیه‌سازی استفاده کن
+                }
+
+                // اگر HF جواب نداد، از یه تحلیل ساختگی استفاده کن (برای نمایش)
+                const mockAnalysis = `🔍 تحلیل ساختگی (چون API رایگان در دسترس نبود):
+
+این فایل به نظر یک فایل باینری استاندارد است.
+
+تعداد بایت‌ها: ${asmCode.length}
+
+هگز دامپ نشان می‌دهد که احتمالاً یک فایل اجرایی یا کتابخانه است.
+
+برای تحلیل واقعی، لطفاً API کلید خود را در کد تنظیم کنید یا از ابزارهای محلی استفاده نمایید.
+
+💡 پیشنهاد: می‌توانید از مدل Mistral محلی با Ollama استفاده کنید.`;
+
+                aiOutput.textContent = mockAnalysis;
+                status.textContent = '⚠️ تحلیل ساختگی (API در دسترس نبود)';
+                analyzeBtn.disabled = false;
+            });
+
+        })();
     </script>
 </body>
 </html>
