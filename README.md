@@ -1,1 +1,34 @@
+# π reverse engine KD
+
+<p align="center">
+  <img src="https://img.shields.io/badge/version-1.0.0-brightgreen" alt="v1">
+  <img src="https://img.shields.io/badge/made%20with-%E2%9D%A4%EF%B8%8F-red" alt="love">
+  <img src="https://img.shields.io/badge/style-π√}\[]°•§£¢-blueviolet" alt="style">
+</p>
+
+---
+
+## 🔥 چیه این؟
+
+**KREV** یه ابزار مهندسی معکوسه که با **هوش مصنوعی** فایل‌های باینری رو تحلیل می‌کنه.  
+فقط کافیه فایل رو بندازی تو مرورگر، خودش هگز دامپ رو نشون میده و با AI تحلیلش می‌کنه.
+
+---
+
+## 🚀 چطوری استفاده کنم؟
+
+1. فایل `index.html` رو باز کن (یا برو تو [GitHub Pages](https://KILLERDUTCH.github.io/krev/))
+2. فایل باینری رو بکش تو صفحه یا انتخاب کن
+3. دکمه `تحلیل با هوش مصنوعی` رو بزن
+4. نتیجه رو ببین!
+
+---
+
+## 🧠 هوش مصنوعی چطور کار می‌کنه؟
+
+- اول سعی می‌کنه با **Hugging Face API** (رایگان) تحلیل کنه  
+- اگه نتونه، یه **تحلیل ساختگی** نشون میده که کار رو راه بندازه  
+- برای تحلیل واقعی‌تر، می‌تونی از **Ollama** استفاده کنی 
+
+
 
